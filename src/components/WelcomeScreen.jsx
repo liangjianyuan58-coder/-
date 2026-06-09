@@ -32,7 +32,7 @@ export default function WelcomeScreen({ onStart }) {
           </div>
         </div>
 
-        <div className="welcome-meta">全20問 · 約5分</div>
+        <div className="welcome-meta">全20問 · 約5分 · 診断後にURLで結果を共有できます</div>
         <button className="btn-start" onClick={onStart}>
           診断を始める →
         </button>

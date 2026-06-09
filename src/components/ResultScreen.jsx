@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const MGMT_ICONS = {
   communication: '💬',
@@ -18,14 +18,36 @@ const MGMT_TITLES = {
   learning: '学習スタイル',
 }
 
-export default function ResultScreen({ results, onRetake }) {
+export default function ResultScreen({ results, shareUrl, isShared, onRetake }) {
   const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct, management, tips } = results
   const [animated, setAnimated] = useState(false)
+  const [toastMsg, setToastMsg] = useState('')
+  const toastTimer = useRef(null)
 
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 100)
     return () => clearTimeout(t)
   }, [])
+
+  const showToast = (msg) => {
+    setToastMsg(msg)
+    clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToastMsg(''), 2500)
+  }
+
+  const handleShare = async () => {
+    const title = `${mbtiType} ${mbtiInfo.name} - 性格診断結果`
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url: shareUrl })
+      } catch {
+        // user cancelled — no-op
+      }
+    } else {
+      await navigator.clipboard.writeText(shareUrl)
+      showToast('URLをコピーしました')
+    }
+  }
 
   const brainDesc =
     maleBrainPct > 62 ? 'システム思考・論理分析が強い傾向です' :
@@ -34,9 +56,11 @@ export default function ResultScreen({ results, onRetake }) {
 
   return (
     <div className="result-screen">
+      {toastMsg && <div className="toast">{toastMsg}</div>}
+
       <div className="result-header">
-        <div className="result-badge">診断完了!</div>
-        <h1>あなたの診断結果</h1>
+        <div className="result-badge">{isShared ? '共有された結果' : '診断完了!'}</div>
+        <h1>{isShared ? 'メンバーの診断結果' : 'あなたの診断結果'}</h1>
       </div>
 
       {/* MBTI */}
@@ -126,8 +150,14 @@ export default function ResultScreen({ results, onRetake }) {
         </div>
       </section>
 
+      {!isShared && (
+        <button className="btn-share" onClick={handleShare}>
+          結果を共有する（マネージャーに送る）
+        </button>
+      )}
+
       <button className="btn-retake" onClick={onRetake}>
-        もう一度診断する
+        {isShared ? '自分も診断する' : 'もう一度診断する'}
       </button>
     </div>
   )
