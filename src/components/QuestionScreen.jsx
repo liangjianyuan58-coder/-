@@ -6,7 +6,7 @@ const SECTION_COLORS = {
   'MBTI (3/4)': '#7c3aed',
   'MBTI (4/4)': '#6d28d9',
   '脳タイプ診断': '#0ea5e9',
-  'マネジメント適性': '#f59e0b',
+  '仕事スタイル': '#f59e0b',
 }
 
 export default function QuestionScreen({ question, currentIndex, total, onAnswer }) {

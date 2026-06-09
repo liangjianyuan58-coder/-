@@ -26,7 +26,7 @@ export default function WelcomeScreen({ onStart }) {
           <div className="feature-item">
             <span className="feature-icon">📊</span>
             <div>
-              <div className="feature-name">マネジメント適性</div>
+              <div className="feature-name">仕事スタイル</div>
               <div className="feature-desc">コミュニケーション・動機・ストレス対処</div>
             </div>
           </div>

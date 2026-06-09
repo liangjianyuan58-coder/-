@@ -169,7 +169,7 @@ export const questions = [
     id: 15,
     category: 'management',
     trait: 'communication',
-    section: 'マネジメント適性',
+    section: '仕事スタイル',
     text: '意見や要求を伝えるとき、あなたは？',
     options: [
       { label: '直接・率直に伝える', value: 'direct' },
@@ -180,7 +180,7 @@ export const questions = [
     id: 16,
     category: 'management',
     trait: 'motivation',
-    section: 'マネジメント適性',
+    section: '仕事スタイル',
     text: '最もモチベーションが上がるのは？',
     options: [
       { label: '高い目標を達成したとき', value: 'achievement' },
@@ -192,7 +192,7 @@ export const questions = [
     id: 17,
     category: 'management',
     trait: 'stress',
-    section: 'マネジメント適性',
+    section: '仕事スタイル',
     text: '困難な状況に直面したとき？',
     options: [
       { label: '問題に正面から立ち向かう', value: 'fight' },
@@ -204,7 +204,7 @@ export const questions = [
     id: 18,
     category: 'management',
     trait: 'feedback',
-    section: 'マネジメント適性',
+    section: '仕事スタイル',
     text: '批判や厳しいフィードバックを受けたとき？',
     options: [
       { label: '事実として受け取り、すぐ改善する', value: 'logical' },
@@ -216,7 +216,7 @@ export const questions = [
     id: 19,
     category: 'management',
     trait: 'role',
-    section: 'マネジメント適性',
+    section: '仕事スタイル',
     text: 'チームの中で自然と担う役割は？',
     options: [
       { label: 'リーダー・意思決定者', value: 'leader' },
@@ -228,7 +228,7 @@ export const questions = [
     id: 20,
     category: 'management',
     trait: 'learning',
-    section: 'マネジメント適性',
+    section: '仕事スタイル',
     text: '新しいことを習得するとき、好きなスタイルは？',
     options: [
       { label: '理論・全体像から把握する', value: 'theory' },
