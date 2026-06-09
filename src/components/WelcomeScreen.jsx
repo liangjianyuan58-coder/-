@@ -1,6 +1,12 @@
+import { useState } from 'react'
+import ManagerSetup from './ManagerSetup'
+
 export default function WelcomeScreen({ onStart }) {
+  const [showSetup, setShowSetup] = useState(false)
+
   return (
     <div className="welcome">
+      {showSetup && <ManagerSetup onClose={() => setShowSetup(false)} />}
       <div className="welcome-card">
         <div className="welcome-badge">⏱ 約5分で完了</div>
         <h1 className="welcome-title">
@@ -35,6 +41,10 @@ export default function WelcomeScreen({ onStart }) {
         <div className="welcome-meta">全20問 · 約5分 · 診断後にURLで結果を共有できます</div>
         <button className="btn-start" onClick={onStart}>
           診断を始める →
+        </button>
+
+        <button className="btn-manager-setup" onClick={() => setShowSetup(true)}>
+          ⚙️ 管理者設定
         </button>
       </div>
     </div>

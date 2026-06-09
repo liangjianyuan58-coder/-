@@ -4,6 +4,7 @@ import QuestionScreen from './components/QuestionScreen'
 import ResultScreen from './components/ResultScreen'
 import { questions } from './data/questions'
 import { calculateResults } from './utils/scoring'
+import { hasManagerAccess } from './utils/managerAuth'
 
 function buildShareUrl(answerValues) {
   const encoded = btoa(JSON.stringify(answerValues))
@@ -29,6 +30,7 @@ export default function App() {
   const [results, setResults] = useState(null)
   const [shareUrl, setShareUrl] = useState('')
   const [isShared, setIsShared] = useState(false)
+  const [isManagerDevice] = useState(() => hasManagerAccess())
 
   useEffect(() => {
     const hash = window.location.hash.slice(1)
@@ -95,6 +97,7 @@ export default function App() {
       results={results}
       shareUrl={shareUrl}
       isShared={isShared}
+      managerUnlocked={isManagerDevice}
       onRetake={handleRetake}
     />
   )

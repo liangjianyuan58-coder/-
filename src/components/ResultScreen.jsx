@@ -61,7 +61,7 @@ ${mgmtLines}
 7. チームへのアサイン時の注意点`
 }
 
-export default function ResultScreen({ results, shareUrl, isShared, onRetake }) {
+export default function ResultScreen({ results, shareUrl, isShared, managerUnlocked, onRetake }) {
   const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct, management, tips } = results
   const [animated, setAnimated] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
@@ -109,8 +109,12 @@ export default function ResultScreen({ results, shareUrl, isShared, onRetake }) 
       {toastMsg && <div className="toast">{toastMsg}</div>}
 
       <div className="result-header">
-        <div className="result-badge">{isShared ? 'メンバーの診断結果' : '診断完了!'}</div>
-        <h1>{isShared ? 'マネジメント分析レポート' : 'あなたの診断結果'}</h1>
+        <div className="result-badge">
+          {isShared && managerUnlocked ? 'マネジメント分析' : '診断完了!'}
+        </div>
+        <h1>
+          {isShared && managerUnlocked ? 'マネジメント分析レポート' : 'あなたの診断結果'}
+        </h1>
       </div>
 
       {/* MBTI */}
@@ -169,7 +173,7 @@ export default function ResultScreen({ results, shareUrl, isShared, onRetake }) 
       {/* Work Style */}
       <section className="result-section">
         <h2 className="section-title">
-          {isShared ? '📊 仕事スタイル・適性分析' : '📊 あなたの仕事スタイル'}
+          {isShared && managerUnlocked ? '📊 仕事スタイル・適性分析' : '📊 あなたの仕事スタイル'}
         </h2>
         <div className="management-grid">
           {Object.entries(management).map(([key, val]) => (
@@ -183,8 +187,8 @@ export default function ResultScreen({ results, shareUrl, isShared, onRetake }) 
         </div>
       </section>
 
-      {/* Manager-only sections */}
-      {isShared && (
+      {/* Manager-only sections: only shown on devices that have manager PIN set */}
+      {isShared && managerUnlocked && (
         <>
           <section className="result-section">
             <h2 className="section-title">💡 マネジメントのポイント</h2>
@@ -228,7 +232,7 @@ export default function ResultScreen({ results, shareUrl, isShared, onRetake }) 
       )}
 
       <button className="btn-retake" onClick={onRetake}>
-        {isShared ? '自分も診断する' : 'もう一度診断する'}
+        {isShared && managerUnlocked ? '別のメンバーの結果を見る' : isShared ? '自分も診断する' : 'もう一度診断する'}
       </button>
     </div>
   )

@@ -696,6 +696,139 @@ body {
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
+/* Manager setup button (subtle) */
+.btn-manager-setup {
+  display: block;
+  margin: 16px auto 0;
+  background: transparent;
+  border: none;
+  font-size: 12px;
+  color: #c4b5fd;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+
+.btn-manager-setup:hover {
+  color: #7c3aed;
+  background: #f5f3ff;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 200;
+}
+
+.modal-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px 24px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin-bottom: 10px;
+}
+
+.modal-desc {
+  font-size: 13px;
+  color: #78716c;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.pin-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 20px;
+  letter-spacing: 6px;
+  border: 2px solid #e8e4ff;
+  border-radius: 12px;
+  outline: none;
+  text-align: center;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+
+.pin-input:focus {
+  border-color: #7c3aed;
+}
+
+.btn-save-pin {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: opacity 0.2s;
+}
+
+.btn-save-pin:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-clear-pin {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: background 0.2s;
+}
+
+.btn-clear-pin:hover {
+  background: #fff5f5;
+}
+
+.pin-saved {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 700;
+  color: #22c55e;
+  padding: 12px 0;
+}
+
+.btn-modal-close {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  color: #a8a29e;
+  border: 1px solid #e8e4ff;
+  border-radius: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 4px;
+  transition: background 0.2s;
+}
+
+.btn-modal-close:hover {
+  background: #f5f3ff;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .welcome-card { padding: 32px 20px; }
