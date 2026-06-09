@@ -6,18 +6,26 @@ import { questions } from './data/questions'
 import { calculateResults } from './utils/scoring'
 import { hasManagerAccess } from './utils/managerAuth'
 
+const HASH_VERSION = 'v2'
+
 function buildShareUrl(answerValues) {
   const encoded = btoa(JSON.stringify(answerValues))
-  return `${window.location.origin}${window.location.pathname}#${encoded}`
+  return `${window.location.origin}${window.location.pathname}#${HASH_VERSION}:${encoded}`
 }
 
 function decodeHash(hash) {
-  const values = JSON.parse(atob(hash))
+  // Support v2 (24 questions) — ignore legacy v1 hashes
+  if (!hash.startsWith(`${HASH_VERSION}:`)) {
+    throw new Error('Unsupported hash version')
+  }
+  const encoded = hash.slice(HASH_VERSION.length + 1)
+  const values = JSON.parse(atob(encoded))
   return questions.map((q, i) => ({
     questionId: q.id,
     category: q.category,
     dimension: q.dimension,
     brainType: q.brainType,
+    bigFiveType: q.bigFiveType,
     trait: q.trait,
     value: values[i],
   }))
@@ -56,6 +64,7 @@ export default function App() {
       category: q.category,
       dimension: q.dimension,
       brainType: q.brainType,
+      bigFiveType: q.bigFiveType,
       trait: q.trait,
       value,
     }

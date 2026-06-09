@@ -1,73 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
+import { generateAIPrompt } from '../utils/scoring'
 
-const MGMT_ICONS = {
-  communication: '💬',
-  motivation: '🔥',
-  stress: '⚡',
-  feedback: '📝',
-  role: '👤',
-  learning: '📚',
+const MGMT_ICONS = { communication: '💬', motivation: '🔥', feedback: '📝', role: '👤' }
+const MGMT_TITLES = { communication: 'コミュニケーション', motivation: 'モチベーション源', feedback: 'フィードバック', role: 'チームの役割' }
+
+const CONFLICT_ICONS = {
+  competing:     '⚔️',
+  collaborating: '🤝',
+  compromising:  '⚖️',
+  accommodating: '🕊️',
 }
 
-const MGMT_TITLES = {
-  communication: 'コミュニケーション',
-  motivation: 'モチベーション源',
-  stress: 'ストレス対処',
-  feedback: 'フィードバック',
-  role: 'チームの役割',
-  learning: '学習スタイル',
-}
-
-function generateAIPrompt(results) {
-  const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct, management } = results
-
-  const total = (d, a, b) => (d[a] || 0) + (d[b] || 0)
-  const pct = (d, a, b) => {
-    const t = total(d, a, b)
-    return t ? Math.round(((d[a] || 0) / t) * 100) : 50
-  }
-
-  const mgmtLines = Object.entries(management)
-    .map(([key, val]) => `　${MGMT_TITLES[key]}：${val.label}（${val.desc}）`)
-    .join('\n')
-
-  return `以下は、あるメンバーの性格・仕事スタイル診断の結果です。マネジメントの観点で詳しく分析してください。
-
-━━━━━━━━━━━━━━━━━━━━━━
-■ MBTIタイプ：${mbtiType}（${mbtiInfo.name}）
-　${mbtiInfo.tagline}
-
-■ 各軸のスコア
-　E（外向）${pct(dimensions, 'E', 'I')}% ／ I（内向）${100 - pct(dimensions, 'E', 'I')}%
-　N（直感）${pct(dimensions, 'N', 'S')}% ／ S（感覚）${100 - pct(dimensions, 'N', 'S')}%
-　T（論理）${pct(dimensions, 'T', 'F')}% ／ F（感情）${100 - pct(dimensions, 'T', 'F')}%
-　J（判断）${pct(dimensions, 'J', 'P')}% ／ P（知覚）${100 - pct(dimensions, 'J', 'P')}%
-
-■ 脳タイプ
-　男性脳（論理・体系化）：${maleBrainPct}%
-　女性脳（共感・感情）：${femaleBrainPct}%
-
-■ 仕事スタイル
-${mgmtLines}
-━━━━━━━━━━━━━━━━━━━━━━
-
-以下の観点で分析・アドバイスをください：
-1. この人の強みと弱み
-2. 向いているタスクや役割
-3. 効果的なコミュニケーション方法
-4. モチベーションを引き出すアプローチ
-5. 注意すべき言動・地雷
-6. 1on1ミーティングのポイント
-7. チームへのアサイン時の注意点`
+const VALUES_ICON = {
+  growth: '📈', stability: '🏠', autonomy: '🗽', contribution: '💛',
+  achievement: '🏆', teamwork: '👥', mastery: '🎯', impact: '🌍',
+  expert: '🔬', leader: '👑', stable: '⚓', mission: '🌟',
 }
 
 export default function ResultScreen({ results, shareUrl, isShared, managerUnlocked, onRetake }) {
-  const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct, management, tips } = results
+  const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct,
+          bigFive, workValues, conflictStyle, management, tips } = results
   const [animated, setAnimated] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
   const [promptVisible, setPromptVisible] = useState(false)
   const toastTimer = useRef(null)
-  const promptText = generateAIPrompt(results)
 
   useEffect(() => {
     const t = setTimeout(() => setAnimated(true), 100)
@@ -83,11 +39,7 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
   const handleShare = async () => {
     const title = `${mbtiType} ${mbtiInfo.name} - 性格診断結果`
     if (navigator.share) {
-      try {
-        await navigator.share({ title, url: shareUrl })
-      } catch {
-        // user cancelled
-      }
+      try { await navigator.share({ title, url: shareUrl }) } catch { /* cancelled */ }
     } else {
       await navigator.clipboard.writeText(shareUrl)
       showToast('URLをコピーしました')
@@ -95,7 +47,7 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
   }
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(promptText)
+    await navigator.clipboard.writeText(generateAIPrompt(results))
     showToast('AIプロンプトをコピーしました')
   }
 
@@ -104,17 +56,15 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
     femaleBrainPct > 62 ? '共感・感情読み取りが得意な傾向です' :
     'システム思考と共感力がバランス良く備わっています'
 
+  const isManagerView = isShared && managerUnlocked
+
   return (
     <div className="result-screen">
       {toastMsg && <div className="toast">{toastMsg}</div>}
 
       <div className="result-header">
-        <div className="result-badge">
-          {isShared && managerUnlocked ? 'マネジメント分析' : '診断完了!'}
-        </div>
-        <h1>
-          {isShared && managerUnlocked ? 'マネジメント分析レポート' : 'あなたの診断結果'}
-        </h1>
+        <div className="result-badge">{isManagerView ? 'マネジメント分析' : '診断完了!'}</div>
+        <h1>{isManagerView ? 'マネジメント分析レポート' : 'あなたの診断結果'}</h1>
       </div>
 
       {/* MBTI */}
@@ -124,19 +74,15 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
           <div className="mbti-type" style={{ color: mbtiInfo.color }}>{mbtiType}</div>
           <div className="mbti-name">{mbtiInfo.name}</div>
           <div className="mbti-tagline">{mbtiInfo.tagline}</div>
-
           <div className="dimension-bars">
-            {[['E', 'I'], ['N', 'S'], ['T', 'F'], ['J', 'P']].map(([a, b]) => {
-              const total = (dimensions[a] || 0) + (dimensions[b] || 0)
-              const pct = total ? Math.round(((dimensions[a] || 0) / total) * 100) : 50
+            {[['E','I'],['N','S'],['T','F'],['J','P']].map(([a, b]) => {
+              const total = (dimensions[a]||0) + (dimensions[b]||0)
+              const pct = total ? Math.round(((dimensions[a]||0)/total)*100) : 50
               return (
-                <div key={a + b} className="dimension-bar-row">
+                <div key={a+b} className="dimension-bar-row">
                   <span className="dim-label" style={{ color: mbtiInfo.color }}>{a}</span>
                   <div className="dim-bar">
-                    <div
-                      className="dim-fill"
-                      style={{ width: animated ? `${pct}%` : '0%', background: mbtiInfo.color }}
-                    />
+                    <div className="dim-fill" style={{ width: animated ? `${pct}%` : '0%', background: mbtiInfo.color }} />
                   </div>
                   <span className="dim-label-right">{b}</span>
                   <span className="dim-pct">{pct}%</span>
@@ -170,10 +116,70 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
         </div>
       </section>
 
+      {/* Big Five */}
+      <section className="result-section">
+        <h2 className="section-title">🧬 性格特性</h2>
+        <div className="bigfive-grid">
+          {/* Conscientiousness */}
+          <div className="bigfive-card">
+            <div className="bigfive-header">
+              <span className="bigfive-icon">📋</span>
+              <span className="bigfive-name">誠実性</span>
+              <span className={`bigfive-badge level-${bigFive.C.level}`}>{bigFive.C.label}</span>
+            </div>
+            <div className="bigfive-bar-wrap">
+              <div className="bigfive-bar">
+                <div className="bigfive-fill bf-c" style={{ width: animated ? `${bigFive.C.pct}%` : '0%' }} />
+              </div>
+              <span className="bigfive-pct">{bigFive.C.pct}%</span>
+            </div>
+            <p className="bigfive-desc">{bigFive.C.desc}</p>
+          </div>
+          {/* Neuroticism */}
+          <div className="bigfive-card">
+            <div className="bigfive-header">
+              <span className="bigfive-icon">🌊</span>
+              <span className="bigfive-name">情緒安定性</span>
+              <span className={`bigfive-badge level-${bigFive.N.level === 'low' ? 'high' : bigFive.N.level === 'high' ? 'low' : 'mid'}`}>
+                {bigFive.N.label}
+              </span>
+            </div>
+            <div className="bigfive-bar-wrap">
+              <div className="bigfive-bar">
+                {/* Invert: low N = stable = high bar */}
+                <div className="bigfive-fill bf-n" style={{ width: animated ? `${100 - bigFive.N.pct}%` : '0%' }} />
+              </div>
+              <span className="bigfive-pct">{100 - bigFive.N.pct}%</span>
+            </div>
+            <p className="bigfive-desc">{bigFive.N.desc}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Work Values */}
+      <section className="result-section">
+        <h2 className="section-title">💎 仕事の価値観</h2>
+        <div className="values-card">
+          <div className="values-primary">
+            <span className="values-icon">{VALUES_ICON[workValues.primary] || '💡'}</span>
+            <div>
+              <div className="values-label">{workValues.label}</div>
+              <div className="values-desc">{workValues.desc}</div>
+            </div>
+          </div>
+          {workValues.secondaryInfo && (
+            <div className="values-secondary">
+              <span className="values-secondary-tag">サブ</span>
+              <span className="values-secondary-label">{workValues.secondaryInfo.label}</span>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Work Style */}
       <section className="result-section">
         <h2 className="section-title">
-          {isShared && managerUnlocked ? '📊 仕事スタイル・適性分析' : '📊 あなたの仕事スタイル'}
+          {isManagerView ? '📊 仕事スタイル・適性分析' : '📊 あなたの仕事スタイル'}
         </h2>
         <div className="management-grid">
           {Object.entries(management).map(([key, val]) => (
@@ -184,11 +190,19 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
               <div className="mgmt-desc">{val.desc}</div>
             </div>
           ))}
+          {conflictStyle && (
+            <div className="mgmt-card">
+              <div className="mgmt-icon">{CONFLICT_ICONS[conflictStyle.type]}</div>
+              <div className="mgmt-title">コンフリクト</div>
+              <div className="mgmt-label">{conflictStyle.label}</div>
+              <div className="mgmt-desc">{conflictStyle.desc}</div>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* Manager-only sections: only shown on devices that have manager PIN set */}
-      {isShared && managerUnlocked && (
+      {/* Manager-only */}
+      {isManagerView && (
         <>
           <section className="result-section">
             <h2 className="section-title">💡 マネジメントのポイント</h2>
@@ -206,20 +220,15 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
             <h2 className="section-title">🤖 AIで深掘り分析</h2>
             <div className="ai-card">
               <p className="ai-desc">
-                以下のプロンプトをそのままChatGPT・Claudeに貼り付けると、より詳細な分析を得られます。
+                このプロンプトをそのままChatGPT・Claudeに貼り付けると、離職リスク・アサイン適性・1on1ポイントなど8軸で詳細分析が得られます。
               </p>
               <button className="btn-copy-prompt" onClick={handleCopyPrompt}>
                 AIプロンプトをコピーする
               </button>
-              <button
-                className="btn-toggle-prompt"
-                onClick={() => setPromptVisible(v => !v)}
-              >
+              <button className="btn-toggle-prompt" onClick={() => setPromptVisible(v => !v)}>
                 {promptVisible ? 'プロンプトを閉じる ▲' : 'プロンプトを確認する ▼'}
               </button>
-              {promptVisible && (
-                <pre className="prompt-preview">{promptText}</pre>
-              )}
+              {promptVisible && <pre className="prompt-preview">{generateAIPrompt(results)}</pre>}
             </div>
           </section>
         </>
@@ -232,7 +241,7 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
       )}
 
       <button className="btn-retake" onClick={onRetake}>
-        {isShared && managerUnlocked ? '別のメンバーの結果を見る' : isShared ? '自分も診断する' : 'もう一度診断する'}
+        {isManagerView ? '別のメンバーの結果を見る' : isShared ? '自分も診断する' : 'もう一度診断する'}
       </button>
     </div>
   )

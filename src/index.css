@@ -696,6 +696,143 @@ body {
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
+/* Big Five */
+.bigfive-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.bigfive-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.05);
+}
+
+.bigfive-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.bigfive-icon { font-size: 18px; }
+
+.bigfive-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #44403c;
+  flex: 1;
+}
+
+.bigfive-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.bigfive-badge.level-high { background: #dcfce7; color: #166534; }
+.bigfive-badge.level-mid  { background: #fef9c3; color: #854d0e; }
+.bigfive-badge.level-low  { background: #fee2e2; color: #991b1b; }
+
+.bigfive-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.bigfive-bar {
+  flex: 1;
+  height: 7px;
+  background: #ede9fe;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.bigfive-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease .2s;
+}
+
+.bf-c { background: linear-gradient(90deg, #0d9488, #14b8a6); }
+.bf-n { background: linear-gradient(90deg, #3b82f6, #0ea5e9); }
+
+.bigfive-pct {
+  font-size: 12px;
+  font-weight: 600;
+  color: #78716c;
+  width: 32px;
+  text-align: right;
+}
+
+.bigfive-desc {
+  font-size: 11px;
+  color: #78716c;
+  line-height: 1.5;
+}
+
+/* Work Values */
+.values-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.06);
+}
+
+.values-primary {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.values-icon {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.values-label {
+  font-size: 17px;
+  font-weight: 800;
+  color: #1e1b4b;
+  margin-bottom: 4px;
+}
+
+.values-desc {
+  font-size: 13px;
+  color: #78716c;
+  line-height: 1.5;
+}
+
+.values-secondary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f5f3ff;
+}
+
+.values-secondary-tag {
+  font-size: 10px;
+  font-weight: 700;
+  background: #ede9fe;
+  color: #7c3aed;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.values-secondary-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #78716c;
+}
+
 /* Manager setup button (subtle) */
 .btn-manager-setup {
   display: block;
