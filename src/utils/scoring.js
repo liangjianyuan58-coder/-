@@ -41,14 +41,24 @@ const MANAGEMENT_LABELS = {
 
 const BIGFIVE_LABELS = {
   C: [
-    { level: 'low',  label: '柔軟型',   desc: '形式よりスピード重視。リマインダーや短期ゴールの設定が効果的。' },
+    { level: 'low',  label: '柔軟型',     desc: '形式よりスピード重視。リマインダーや短期ゴールの設定が効果的。' },
     { level: 'mid',  label: 'バランス型', desc: '状況に応じて計画的にも柔軟にも動ける。' },
-    { level: 'high', label: '誠実型',   desc: '締め切り・約束を厳守。明確な期待値とプロセスが力を引き出す。' },
+    { level: 'high', label: '誠実型',     desc: '締め切り・約束を厳守。明確な期待値とプロセスが力を引き出す。' },
   ],
   N: [
-    { level: 'low',  label: '安定型',     desc: 'プレッシャー下でも冷静。率直なフィードバックを受け入れやすい。' },
-    { level: 'mid',  label: '中程度',     desc: '状況によってストレス反応が変わる。' },
-    { level: 'high', label: '感受性高型', desc: '批判や変化にストレスを感じやすい。承認と心理的安全が重要。' },
+    { level: 'low',  label: '安定型',       desc: 'プレッシャー下でも冷静。率直なフィードバックを受け入れやすい。' },
+    { level: 'mid',  label: '中程度',       desc: '状況によってストレス反応が変わる。' },
+    { level: 'high', label: '感受性高型',   desc: '批判や変化にストレスを感じやすい。承認と心理的安全が重要。' },
+  ],
+  O: [
+    { level: 'low',  label: '実践型',     desc: '慣れ親しんだ方法を好む。変化には十分な準備期間と説明を。' },
+    { level: 'mid',  label: 'バランス型', desc: '新しいことも慣れ親しんだことも適度に取り入れられる。' },
+    { level: 'high', label: '探究型',     desc: '新しいアイデアや挑戦に燃える。ルーティン業務だけでは飽きやすい。' },
+  ],
+  A: [
+    { level: 'low',  label: '独立型',     desc: '率直で議論を厭わない。意見の衝突を建設的に活かせる環境を。' },
+    { level: 'mid',  label: 'バランス型', desc: '状況に応じて主張と協調を使い分けられる。' },
+    { level: 'high', label: '協調型',     desc: '過度に他者に合わせる傾向。「あなたの意見は？」と明示的に引き出して。' },
   ],
 }
 
@@ -72,6 +82,42 @@ const CONFLICT_LABELS = {
   collaborating:  { label: '協調・解決型', desc: '双方が納得できるWin-Winを丁寧に探す。合意形成に強い。' },
   compromising:   { label: '妥協・現実型', desc: 'お互いが少し譲り合う現実的な解を好む。スピーディな合意が得意。' },
   accommodating:  { label: '適応・配慮型', desc: 'チームの意向を優先する。自分の意見を言える環境づくりが大切。' },
+}
+
+const DECISION_LABELS = {
+  analytical:  { label: '分析型',   icon: '🔬', desc: 'データ・論理を重視。慎重で丁寧。意思決定には十分な情報提供を。' },
+  directive:   { label: '直感型',   icon: '⚡', desc: '経験と直感でスピード重視。情報の洪水は逆効果。シンプルに伝えて。' },
+  conceptual:  { label: '構想型',   icon: '💡', desc: 'アイデアと長期視点。創造的な役割・新規事業に向いている。' },
+  behavioral:  { label: '合意型',   icon: '🤝', desc: '人と合意を大切にする。コンセンサスに時間がかかることも。' },
+}
+
+const LEADERSHIP_LABELS = {
+  directive:    { label: '指示型',   icon: '🎯', desc: '方向性を示してチームを牽引する。スピードと一貫性が強み。' },
+  participative:{ label: '参加型',   icon: '🗳️', desc: 'メンバーの意見を集めて合意を形成する。心理的安全が高まる。' },
+  delegative:   { label: '委任型',   icon: '🗽', desc: '自律性を尊重して任せる。メンバーの成熟度が高い場合に有効。' },
+  coaching:     { label: 'コーチング型', icon: '🌱', desc: '一人ひとりの成長を支援する。時間がかかるが長期的な効果が高い。' },
+  supportive:   { label: '支援型',   icon: '💛', desc: 'チームの感情・関係性を大切にする。心理的安全の醸成が得意。' },
+}
+
+const RECOGNITION_LABELS = {
+  public:    { label: '公式称賛型',  icon: '📣', desc: 'みんなの前で認めてもらうことで自信とやる気が高まる。' },
+  private:   { label: '個別承認型',  icon: '💬', desc: '1on1で直接言葉で伝えてもらう方が刺さる。大勢の前は照れる場合も。' },
+  tangible:  { label: '実績評価型',  icon: '📊', desc: '評価・報酬・昇進という具体的な形が最もモチベーションになる。' },
+  flexible:  { label: '承認無頓着型', icon: '😌', desc: '承認の形にこだわらない。仕事自体のやりがいで動いている。' },
+}
+
+const STRESS_TRIGGER_LABELS = {
+  ambiguity:     { label: '不確実性',     desc: '情報・方向性が見えないとストレスが高まる' },
+  overwhelm:     { label: 'タスク過多',   desc: '優先順位がつけられない状態が苦手' },
+  interpersonal: { label: '人間関係',     desc: 'チームの摩擦や対立が特にダメージになる' },
+  control:       { label: 'コントロール喪失', desc: '自分で決められない・動かせない状況がつらい' },
+}
+
+const STRESS_SIGN_LABELS = {
+  withdrawal:    { label: '引きこもり',   desc: '口数が減り、一人で抱え込む' },
+  perfectionism: { label: '過集中・完璧主義', desc: '細部にこだわりすぎて前に進めなくなる' },
+  emotional:     { label: '感情的反応',   desc: '苛立ちや感情的な発言が増える' },
+  avoidance:     { label: '回避・先延ばし', desc: 'タスクを後回しにして逃げる傾向が出る' },
 }
 
 // Work values: pick the most "management-meaningful" type from 3 answers
@@ -111,17 +157,24 @@ export function calculateResults(answers) {
   const totalBrain = systemizing + empathizing
   const maleBrainPct = totalBrain === 0 ? 50 : Math.round((systemizing / totalBrain) * 100)
 
-  // Big Five C & N
-  let cScore = 0, nScore = 0
+  // Big Five (all axes — O and A only present in detailed mode)
+  let cScore = 0, nScore = 0, oScore = 0, aScore = 0
   answers.filter(a => a.category === 'bigfive').forEach(a => {
     if (a.bigFiveType === 'C') cScore += a.value
     else if (a.bigFiveType === 'N') nScore += a.value
+    else if (a.bigFiveType === 'O') oScore += a.value
+    else if (a.bigFiveType === 'A') aScore += a.value
   })
-  const cLevel = cScore >= 4 ? 2 : cScore >= 2 ? 1 : 0
-  const nLevel = nScore >= 4 ? 2 : nScore >= 2 ? 1 : 0
+  const lvl = (s, max) => s >= max ? 2 : s >= max / 2 ? 1 : 0
   const bigFive = {
-    C: { score: cScore, maxScore: 4, pct: Math.round((cScore / 4) * 100), ...BIGFIVE_LABELS.C[cLevel] },
-    N: { score: nScore, maxScore: 4, pct: Math.round((nScore / 4) * 100), ...BIGFIVE_LABELS.N[nLevel] },
+    C: { score: cScore, pct: Math.round((cScore / 4) * 100), ...BIGFIVE_LABELS.C[lvl(cScore, 4)] },
+    N: { score: nScore, pct: Math.round((nScore / 4) * 100), ...BIGFIVE_LABELS.N[lvl(nScore, 4)] },
+    ...(oScore > 0 || answers.some(a => a.bigFiveType === 'O')
+      ? { O: { score: oScore, pct: Math.round((oScore / 4) * 100), ...BIGFIVE_LABELS.O[lvl(oScore, 4)] } }
+      : {}),
+    ...(aScore > 0 || answers.some(a => a.bigFiveType === 'A')
+      ? { A: { score: aScore, pct: Math.round((aScore / 4) * 100), ...BIGFIVE_LABELS.A[lvl(aScore, 4)] } }
+      : {}),
   }
 
   // Work values
@@ -140,7 +193,47 @@ export function calculateResults(answers) {
     management[a.trait] = { value: a.value, ...MANAGEMENT_LABELS[a.trait][a.value] }
   })
 
-  const tips = generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle)
+  // Decision-making style (detailed only)
+  const decisionAnswers = answers.filter(a => a.category === 'decision')
+  let decisionStyle = null
+  if (decisionAnswers.length > 0) {
+    const counts = {}
+    decisionAnswers.forEach(a => { counts[a.value] = (counts[a.value] || 0) + 1 })
+    const sorted = Object.entries(counts).sort((x, y) => y[1] - x[1])
+    const primary = sorted[0][0]
+    const secondary = sorted[1]?.[0]
+    decisionStyle = {
+      type: primary,
+      ...DECISION_LABELS[primary],
+      secondary: secondary ? { type: secondary, ...DECISION_LABELS[secondary] } : null,
+    }
+  }
+
+  // Leadership tendency (detailed only)
+  const leaderAnswers = answers.filter(a => a.category === 'leadership')
+  let leadershipStyle = null
+  if (leaderAnswers.length > 0) {
+    const counts = {}
+    leaderAnswers.forEach(a => { counts[a.value] = (counts[a.value] || 0) + 1 })
+    const primary = Object.entries(counts).sort((x, y) => y[1] - x[1])[0][0]
+    leadershipStyle = { type: primary, ...LEADERSHIP_LABELS[primary] }
+  }
+
+  // Recognition preference (detailed only)
+  const recognitionAnswer = answers.find(a => a.category === 'recognition')
+  const recognitionStyle = recognitionAnswer
+    ? { type: recognitionAnswer.value, ...RECOGNITION_LABELS[recognitionAnswer.value] }
+    : null
+
+  // Stress triggers (detailed only)
+  const triggerAnswer = answers.find(a => a.category === 'stress' && a.stressType === 'trigger')
+  const signAnswer = answers.find(a => a.category === 'stress' && a.stressType === 'sign')
+  const stressTriggers = (triggerAnswer || signAnswer) ? {
+    trigger: triggerAnswer ? { type: triggerAnswer.value, ...STRESS_TRIGGER_LABELS[triggerAnswer.value] } : null,
+    sign:    signAnswer    ? { type: signAnswer.value,    ...STRESS_SIGN_LABELS[signAnswer.value] }    : null,
+  } : null
+
+  const tips = generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle, decisionStyle, leadershipStyle, recognitionStyle, stressTriggers)
 
   return {
     mbtiType,
@@ -152,11 +245,15 @@ export function calculateResults(answers) {
     workValues,
     conflictStyle,
     management,
+    decisionStyle,
+    leadershipStyle,
+    recognitionStyle,
+    stressTriggers,
     tips,
   }
 }
 
-function generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle) {
+function generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle, decisionStyle, leadershipStyle, recognitionStyle, stressTriggers) {
   const tips = []
 
   // E/I
@@ -207,12 +304,49 @@ function generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle
     }
   }
 
+  // Big Five O (detailed only)
+  if (bigFive.O) {
+    if (bigFive.O.level === 'high') tips.push('新しい役割・実験的プロジェクトで本領発揮。ルーティン業務だけでは飽きやすい点に注意')
+    else if (bigFive.O.level === 'low') tips.push('慣れ親しんだやり方を好みます。変化の際は十分な準備期間と説明を')
+  }
+
+  // Big Five A (detailed only)
+  if (bigFive.A) {
+    if (bigFive.A.level === 'high') tips.push('チームの調和を大切にする一方、言いたいことを飲み込みがち。意見を明示的に引き出して')
+    else if (bigFive.A.level === 'low') tips.push('率直で議論を厭わない。意見の衝突を建設的に活かせる環境で力を発揮します')
+  }
+
+  // Decision-making (detailed only)
+  if (decisionStyle) {
+    if (decisionStyle.type === 'analytical') tips.push('意思決定には十分なデータ・根拠の提供を。急かすと精度が下がります')
+    else if (decisionStyle.type === 'directive') tips.push('シンプル・スピード重視の意思決定者。情報の洪水は逆効果。要点だけ提示して')
+    else if (decisionStyle.type === 'conceptual') tips.push('アイデアや新しい視点を与えると燃えます。長期視点のプロジェクトに向いています')
+    else if (decisionStyle.type === 'behavioral') tips.push('合意形成に強みがあります。チームのコンセンサスを取るプロセスを大切に')
+  }
+
+  // Recognition (detailed only)
+  if (recognitionStyle) {
+    if (recognitionStyle.type === 'public') tips.push('チームの前での公式な称賛が最大のモチベーションになります')
+    else if (recognitionStyle.type === 'private') tips.push('1on1や個別のメッセージで直接伝えると最も響きます')
+    else if (recognitionStyle.type === 'tangible') tips.push('評価・昇進・報酬という具体的な形が最大のモチベーションです')
+  }
+
+  // Stress triggers (detailed only)
+  if (stressTriggers?.trigger) {
+    if (stressTriggers.trigger.type === 'ambiguity') tips.push('不確実な状況では進捗の見える化と方向性の定期共有が重要です')
+    else if (stressTriggers.trigger.type === 'overwhelm') tips.push('タスクが多いときは優先順位を一緒に整理する時間を設けましょう')
+    else if (stressTriggers.trigger.type === 'interpersonal') tips.push('チームの摩擦や対立が特にダメージになります。早期の関係修復サポートを')
+    else if (stressTriggers.trigger.type === 'control') tips.push('自分で決められる余地を残すことが安心感につながります')
+  }
+
   return tips
 }
 
 // ── AI Prompt ──────────────────────────────────────────────────────────
 export function generateAIPrompt(results) {
-  const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct, bigFive, workValues, conflictStyle, management } = results
+  const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct,
+          bigFive, workValues, conflictStyle, management,
+          decisionStyle, leadershipStyle, recognitionStyle, stressTriggers } = results
 
   const pct = (a, b) => {
     const t = (dimensions[a] || 0) + (dimensions[b] || 0)
@@ -242,9 +376,9 @@ export function generateAIPrompt(results) {
 　男性脳（論理・体系化）：${maleBrainPct}%
 　女性脳（共感・感情）：${femaleBrainPct}%
 
-■ 性格特性（Big Five抜粋）
+■ 性格特性（Big Five）
 　誠実性：${bigFive.C.label}（${bigFive.C.desc}）
-　情緒安定性：${bigFive.N.label}（${bigFive.N.desc}）
+　情緒安定性：${bigFive.N.label}（${bigFive.N.desc}）${bigFive.O ? `\n　開放性：${bigFive.O.label}（${bigFive.O.desc}）` : ''}${bigFive.A ? `\n　協調性：${bigFive.A.label}（${bigFive.A.desc}）` : ''}
 
 ■ 仕事の価値観
 　${workValues.label}（${workValues.desc}）${workValues.secondaryInfo ? `\n　サブ：${workValues.secondaryInfo.label}` : ''}
@@ -253,7 +387,7 @@ export function generateAIPrompt(results) {
 　${conflictStyle ? `${conflictStyle.label}（${conflictStyle.desc}）` : '不明'}
 
 ■ 仕事スタイル
-${mgmtDetail}
+${mgmtDetail}${decisionStyle ? `\n\n■ 意思決定スタイル\n　${decisionStyle.label}（${decisionStyle.desc}）${decisionStyle.secondary ? `\n　サブ：${decisionStyle.secondary.label}` : ''}` : ''}${leadershipStyle ? `\n\n■ リーダーシップ傾向\n　${leadershipStyle.label}（${leadershipStyle.desc}）` : ''}${recognitionStyle ? `\n\n■ 承認スタイル\n　${recognitionStyle.label}（${recognitionStyle.desc}）` : ''}${stressTriggers ? `\n\n■ ストレス傾向\n　ストレス源：${stressTriggers.trigger?.label || '不明'}（${stressTriggers.trigger?.desc || ''}）\n　サイン：${stressTriggers.sign?.label || '不明'}（${stressTriggers.sign?.desc || ''}）` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━
 
 以下の観点で分析・アドバイスをください：

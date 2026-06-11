@@ -9,6 +9,9 @@ const SECTION_COLORS = {
   '性格特性':   '#0d9488',
   '仕事の価値観': '#d97706',
   '仕事スタイル': '#f97316',
+  '思考スタイル': '#e11d48',
+  'リーダーシップ': '#16a34a',
+  'マネジメント詳細': '#9333ea',
 }
 
 export default function QuestionScreen({ question, currentIndex, total, onAnswer }) {

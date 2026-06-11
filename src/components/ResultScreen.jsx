@@ -17,9 +17,11 @@ const VALUES_ICON = {
   expert: '🔬', leader: '👑', stable: '⚓', mission: '🌟',
 }
 
-export default function ResultScreen({ results, shareUrl, isShared, managerUnlocked, onRetake }) {
+export default function ResultScreen({ results, shareUrl, isShared, mode, managerUnlocked, onRetake }) {
   const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct,
-          bigFive, workValues, conflictStyle, management, tips } = results
+          bigFive, workValues, conflictStyle, management,
+          decisionStyle, leadershipStyle, recognitionStyle, stressTriggers,
+          tips } = results
   const [animated, setAnimated] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
   const [promptVisible, setPromptVisible] = useState(false)
@@ -153,6 +155,40 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
             </div>
             <p className="bigfive-desc">{bigFive.N.desc}</p>
           </div>
+          {/* Openness (detailed only) */}
+          {bigFive.O && (
+            <div className="bigfive-card">
+              <div className="bigfive-header">
+                <span className="bigfive-icon">🔭</span>
+                <span className="bigfive-name">開放性</span>
+                <span className={`bigfive-badge level-${bigFive.O.level}`}>{bigFive.O.label}</span>
+              </div>
+              <div className="bigfive-bar-wrap">
+                <div className="bigfive-bar">
+                  <div className="bigfive-fill bf-o" style={{ width: animated ? `${bigFive.O.pct}%` : '0%' }} />
+                </div>
+                <span className="bigfive-pct">{bigFive.O.pct}%</span>
+              </div>
+              <p className="bigfive-desc">{bigFive.O.desc}</p>
+            </div>
+          )}
+          {/* Agreeableness (detailed only) */}
+          {bigFive.A && (
+            <div className="bigfive-card">
+              <div className="bigfive-header">
+                <span className="bigfive-icon">🤝</span>
+                <span className="bigfive-name">協調性</span>
+                <span className={`bigfive-badge level-${bigFive.A.level}`}>{bigFive.A.label}</span>
+              </div>
+              <div className="bigfive-bar-wrap">
+                <div className="bigfive-bar">
+                  <div className="bigfive-fill bf-a" style={{ width: animated ? `${bigFive.A.pct}%` : '0%' }} />
+                </div>
+                <span className="bigfive-pct">{bigFive.A.pct}%</span>
+              </div>
+              <p className="bigfive-desc">{bigFive.A.desc}</p>
+            </div>
+          )}
         </div>
       </section>
 
@@ -200,6 +236,87 @@ export default function ResultScreen({ results, shareUrl, isShared, managerUnloc
           )}
         </div>
       </section>
+
+      {/* Decision-making style (detailed only) */}
+      {decisionStyle && (
+        <section className="result-section">
+          <h2 className="section-title">⚡ 意思決定スタイル</h2>
+          <div className="detail-card">
+            <div className="detail-main">
+              <span className="detail-icon-large">{decisionStyle.icon}</span>
+              <div>
+                <div className="detail-label">{decisionStyle.label}</div>
+                <div className="detail-desc">{decisionStyle.desc}</div>
+              </div>
+            </div>
+            {decisionStyle.secondary && (
+              <div className="detail-secondary">
+                <span className="detail-sub-tag">サブ</span>
+                <span className="detail-sub-text">{decisionStyle.secondary.icon} {decisionStyle.secondary.label}</span>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Leadership tendency (detailed only) */}
+      {leadershipStyle && (
+        <section className="result-section">
+          <h2 className="section-title">🎯 リーダーシップ傾向</h2>
+          <div className="detail-card">
+            <div className="detail-main">
+              <span className="detail-icon-large">{leadershipStyle.icon}</span>
+              <div>
+                <div className="detail-label">{leadershipStyle.label}</div>
+                <div className="detail-desc">{leadershipStyle.desc}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Recognition style (detailed only) */}
+      {recognitionStyle && (
+        <section className="result-section">
+          <h2 className="section-title">🌟 承認スタイル</h2>
+          <div className="detail-card">
+            <div className="detail-main">
+              <span className="detail-icon-large">{recognitionStyle.icon}</span>
+              <div>
+                <div className="detail-label">{recognitionStyle.label}</div>
+                <div className="detail-desc">{recognitionStyle.desc}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Stress triggers (detailed only) */}
+      {stressTriggers && (
+        <section className="result-section">
+          <h2 className="section-title">⚠️ ストレス傾向</h2>
+          <div className="stress-card">
+            {stressTriggers.trigger && (
+              <div className="stress-row">
+                <div className="stress-tag stress-tag-trigger">ストレス源</div>
+                <div className="stress-content">
+                  <div className="stress-label">{stressTriggers.trigger.label}</div>
+                  <div className="stress-desc">{stressTriggers.trigger.desc}</div>
+                </div>
+              </div>
+            )}
+            {stressTriggers.sign && (
+              <div className="stress-row">
+                <div className="stress-tag stress-tag-sign">サイン</div>
+                <div className="stress-content">
+                  <div className="stress-label">{stressTriggers.sign.label}</div>
+                  <div className="stress-desc">{stressTriggers.sign.desc}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Manager-only */}
       {isManagerView && (

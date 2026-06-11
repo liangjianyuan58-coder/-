@@ -8,11 +8,10 @@ export default function WelcomeScreen({ onStart }) {
     <div className="welcome">
       {showSetup && <ManagerSetup onClose={() => setShowSetup(false)} />}
       <div className="welcome-card">
-        <div className="welcome-badge">⏱ 約5分で完了</div>
         <h1 className="welcome-title">
           <span className="gradient-text">性格診断</span>
         </h1>
-        <p className="welcome-subtitle">あなたの強みとマネジメント適性を発見</p>
+        <p className="welcome-subtitle">あなたの強みと仕事スタイルを発見</p>
 
         <div className="features">
           <div className="feature-item">
@@ -38,10 +37,23 @@ export default function WelcomeScreen({ onStart }) {
           </div>
         </div>
 
-        <div className="welcome-meta">全20問 · 約5分 · 診断後にURLで結果を共有できます</div>
-        <button className="btn-start" onClick={onStart}>
-          診断を始める →
-        </button>
+        <p className="mode-select-label">診断モードを選んでください</p>
+        <div className="mode-selection">
+          <button className="btn-mode" onClick={() => onStart('simple')}>
+            <div className="mode-icon">⚡</div>
+            <div className="mode-title">簡易診断</div>
+            <div className="mode-time">約5分 · 24問</div>
+            <div className="mode-desc">MBTI・脳タイプ・性格特性など基本8軸</div>
+          </button>
+          <button className="btn-mode btn-mode-detailed" onClick={() => onStart('detailed')}>
+            <div className="mode-icon">🔬</div>
+            <div className="mode-title">詳細診断</div>
+            <div className="mode-time">約12〜15分 · 46問</div>
+            <div className="mode-desc">基本8軸＋意思決定・リーダーシップ等14軸</div>
+          </button>
+        </div>
+
+        <div className="welcome-meta">診断後にURLで結果を共有できます</div>
 
         <button className="btn-manager-setup" onClick={() => setShowSetup(true)}>
           ⚙️ 管理者設定
