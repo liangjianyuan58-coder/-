@@ -23,21 +23,21 @@ const extra = [
       { label: '慣れるまでは少し時間がかかる', value: 'I' },
     ],
   },
-  // ===== MBTI N/S 拡張 =====
+  // ===== MBTI Ni/Ne 拡張 =====
   {
-    id: 27, category: 'mbti', dimension: 'NS', section: 'MBTI (2/4)',
-    text: 'プレゼン資料を作るとき？',
+    id: 27, category: 'mbti', dimension: 'NiNe', section: 'MBTI (2/4)',
+    text: '考えごとの結論について、当てはまるのは？',
     options: [
-      { label: 'データ・事例を中心に組み立てる', value: 'S' },
-      { label: 'ビジョン・概念を先に描く', value: 'N' },
+      { label: '考え続けると、ある時ふっと「答えはこれだ」という確信が降りてくる', value: 'Ni' },
+      { label: '考えるほど選択肢が増えて、一つに決めるのが惜しくなる', value: 'Ne' },
     ],
   },
   {
-    id: 28, category: 'mbti', dimension: 'NS', section: 'MBTI (2/4)',
-    text: '「面白い」と感じる話題は？',
+    id: 28, category: 'mbti', dimension: 'FiFe', section: 'MBTI (2/4)',
+    text: 'グループで食事の店を決めるとき、内心に近いのは？',
     options: [
-      { label: '実用的・現場で使えるノウハウ', value: 'S' },
-      { label: '未来・哲学・物事の本質的な話', value: 'N' },
+      { label: '自分の食べたいものがあり、できればそれを通したい', value: 'Fi' },
+      { label: 'みんなが楽しめるなら、店は本当にどれでもいい', value: 'Fe' },
     ],
   },
   // ===== MBTI T/F 拡張 =====
@@ -57,21 +57,21 @@ const extra = [
       { label: '関係性を保つ方向を優先する', value: 'F' },
     ],
   },
-  // ===== MBTI J/P 拡張 =====
+  // ===== MBTI Ni/Ne・Fi/Fe 拡張 =====
   {
-    id: 31, category: 'mbti', dimension: 'JP', section: 'MBTI (4/4)',
-    text: '複数の選択肢があるとき？',
+    id: 31, category: 'mbti', dimension: 'NiNe', section: 'MBTI (4/4)',
+    text: 'プロジェクトの初期段階で、自然にやってしまうのは？',
     options: [
-      { label: '早めに一つに絞って進めたい', value: 'J' },
-      { label: 'できるだけ多くの可能性を残しておきたい', value: 'P' },
+      { label: '最終的な完成形・全体像を先にイメージして、そこから逆算する', value: 'Ni' },
+      { label: 'とりあえず手を動かして、可能性をいくつも試しながら形を探る', value: 'Ne' },
     ],
   },
   {
-    id: 32, category: 'mbti', dimension: 'JP', section: 'MBTI (4/4)',
-    text: '旅行の計画は？',
+    id: 32, category: 'mbti', dimension: 'FiFe', section: 'MBTI (4/4)',
+    text: '友人の相談に乗るとき、自然な姿勢は？',
     options: [
-      { label: '事前にルートや宿をしっかり決めておく', value: 'J' },
-      { label: '現地の気分や状況に合わせて決めたい', value: 'P' },
+      { label: '「自分ならこうする」と自分軸で答えを伝えたくなる', value: 'Fi' },
+      { label: '相手が本当に望んでいることを読んで、それに沿いたくなる', value: 'Fe' },
     ],
   },
   // ===== Big Five O（開放性）=====

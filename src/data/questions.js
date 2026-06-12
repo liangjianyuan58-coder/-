@@ -18,19 +18,19 @@ export const questions = [
   },
   // ===== MBTI: N vs S =====
   {
-    id: 3, category: 'mbti', dimension: 'NS', section: 'MBTI (2/4)',
-    text: '物事を判断するとき、重視するのは？',
+    id: 3, category: 'mbti', dimension: 'NiNe', section: 'MBTI (2/4)',
+    text: 'アイデアや情報がたくさんあるとき、頭の中で起きやすいのは？',
     options: [
-      { label: '具体的な事実と実績', value: 'S' },
-      { label: '将来の可能性とアイデア', value: 'N' },
+      { label: 'いろいろな情報が、最終的に一つの結論や本質に自然とまとまっていく', value: 'Ni' },
+      { label: '一つの情報から、別のアイデアや可能性が次々と広がっていく', value: 'Ne' },
     ],
   },
   {
-    id: 4, category: 'mbti', dimension: 'NS', section: 'MBTI (2/4)',
-    text: '未来のことを考えるとき？',
+    id: 4, category: 'mbti', dimension: 'NiNe', section: 'MBTI (2/4)',
+    text: '物語や映画の楽しみ方として近いのは？',
     options: [
-      { label: '現実的・実務的に考える', value: 'S' },
-      { label: 'ワクワクするビジョンを描く', value: 'N' },
+      { label: '先の展開や結末の構造が読めること自体が楽しい。ネタバレも気にならない', value: 'Ni' },
+      { label: '予想外の展開に驚かされるのが楽しい。ネタバレは避けたい', value: 'Ne' },
     ],
   },
   // ===== MBTI: T vs F =====
@@ -52,19 +52,19 @@ export const questions = [
   },
   // ===== MBTI: J vs P =====
   {
-    id: 7, category: 'mbti', dimension: 'JP', section: 'MBTI (4/4)',
-    text: '計画について、どちらが自分に近い？',
+    id: 7, category: 'mbti', dimension: 'SiSe', section: 'MBTI (4/4)',
+    text: '休日の過ごし方として、惹かれるのは？',
     options: [
-      { label: '決めたスケジュール通りに進めたい', value: 'J' },
-      { label: '状況に応じて柔軟に対応したい', value: 'P' },
+      { label: '慣れた場所・いつものパターンで、安心して過ごす', value: 'Si' },
+      { label: '新しい場所・初めての体験に、その場のノリで飛び込む', value: 'Se' },
     ],
   },
   {
-    id: 8, category: 'mbti', dimension: 'JP', section: 'MBTI (4/4)',
-    text: '仕事の仕上げは？',
+    id: 8, category: 'mbti', dimension: 'FiFe', section: 'MBTI (4/4)',
+    text: '自分の判断基準として、強いのはどちら？',
     options: [
-      { label: '早めに終わらせてスッキリしたい', value: 'J' },
-      { label: 'ギリギリまで磨き続けたい', value: 'P' },
+      { label: '自分の中の「好き嫌い」「これは譲れない」という感覚', value: 'Fi' },
+      { label: 'その場の調和や、相手がどう受け取るか', value: 'Fe' },
     ],
   },
   // ===== 脳タイプ (4問) =====
@@ -150,6 +150,7 @@ export const questions = [
       { label: '安定・長期雇用・安心できる環境', value: 'stability' },
       { label: '自由・自律・自分のペースで動ける裁量', value: 'autonomy' },
       { label: '誰かへの貢献・感謝・人とのつながり', value: 'contribution' },
+      { label: '知的な面白さ・探究・理解すること自体が楽しい', value: 'exploration' },
     ],
   },
   {

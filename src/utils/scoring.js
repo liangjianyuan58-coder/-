@@ -75,6 +75,7 @@ const VALUES_LABELS = {
   leader:       { label: 'リーダーキャリア型', desc: '将来的に人・組織を動かすことを志向。責任ある役割がモチベーション。' },
   stable:       { label: '長期貢献型',     desc: '長く安定して貢献することを重視。信頼関係の構築が大切。' },
   mission:      { label: 'ミッション志向型', desc: '社会的意義のある仕事に引かれる。仕事の意味づけが離職を防ぐ。' },
+  exploration:  { label: '探究・知的好奇心型', desc: '知ること・理解すること自体が最大の動機。知的な刺激と自由な探索が力を引き出す。' },
 }
 
 const CONFLICT_LABELS = {
@@ -138,15 +139,37 @@ function inferWorkValues(answers) {
 }
 
 export function calculateResults(answers) {
-  // MBTI
-  const dims = { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, J: 0, P: 0 }
-  answers.filter(a => a.category === 'mbti').forEach(a => { dims[a.value]++ })
+  // MBTI — cognitive function scoring
+  const raw = { E: 0, I: 0, Ni: 0, Ne: 0, Si: 0, Se: 0, T: 0, F: 0, Fi: 0, Fe: 0 }
+  answers.filter(a => a.category === 'mbti').forEach(a => {
+    if (a.value in raw) raw[a.value]++
+  })
 
-  const e = dims.E >= dims.I ? 'E' : 'I'
-  const n = dims.N >= dims.S ? 'N' : 'S'
-  const t = dims.T >= dims.F ? 'T' : 'F'
-  const j = dims.J >= dims.P ? 'J' : 'P'
+  // Legacy fallback: old hash URLs stored 'N'/'S'/'J'/'P' directly
+  const legacyN = answers.filter(a => a.category === 'mbti' && a.value === 'N').length
+  const legacyS = answers.filter(a => a.category === 'mbti' && a.value === 'S').length
+  const legacyJ = answers.filter(a => a.category === 'mbti' && a.value === 'J').length
+  const legacyP = answers.filter(a => a.category === 'mbti' && a.value === 'P').length
+
+  const nScore = raw.Ni + raw.Ne + legacyN
+  const sScore = raw.Si + raw.Se + legacyS
+  // J tendency: introverted perceiving (Ni, Si) + extraverted judging (Fe)
+  // P tendency: extraverted perceiving (Ne, Se) + introverted judging (Fi)
+  const jScore = raw.Ni + raw.Si + raw.Fe + legacyJ
+  const pScore = raw.Ne + raw.Se + raw.Fi + legacyP
+
+  const e = raw.E >= raw.I ? 'E' : 'I'
+  const n = nScore >= sScore ? 'N' : 'S'
+  const t = raw.T >= raw.F ? 'T' : 'F'
+  const j = jScore >= pScore ? 'J' : 'P'
   const mbtiType = `${e}${n}${t}${j}`
+
+  const dimensions = {
+    E: raw.E, I: raw.I,
+    N: nScore, S: sScore,
+    T: raw.T, F: raw.F,
+    J: jScore, P: pScore,
+  }
 
   // Brain type
   let systemizing = 0, empathizing = 0
@@ -158,17 +181,17 @@ export function calculateResults(answers) {
   const maleBrainPct = totalBrain === 0 ? 50 : Math.round((systemizing / totalBrain) * 100)
 
   // Big Five (all axes — O and A only present in detailed mode)
-  let cScore = 0, nScore = 0, oScore = 0, aScore = 0
+  let cScore = 0, bfnScore = 0, oScore = 0, aScore = 0
   answers.filter(a => a.category === 'bigfive').forEach(a => {
     if (a.bigFiveType === 'C') cScore += a.value
-    else if (a.bigFiveType === 'N') nScore += a.value
+    else if (a.bigFiveType === 'N') bfnScore += a.value
     else if (a.bigFiveType === 'O') oScore += a.value
     else if (a.bigFiveType === 'A') aScore += a.value
   })
   const lvl = (s, max) => s >= max ? 2 : s >= max / 2 ? 1 : 0
   const bigFive = {
-    C: { score: cScore, pct: Math.round((cScore / 4) * 100), ...BIGFIVE_LABELS.C[lvl(cScore, 4)] },
-    N: { score: nScore, pct: Math.round((nScore / 4) * 100), ...BIGFIVE_LABELS.N[lvl(nScore, 4)] },
+    C: { score: cScore,    pct: Math.round((cScore    / 4) * 100), ...BIGFIVE_LABELS.C[lvl(cScore,    4)] },
+    N: { score: bfnScore,  pct: Math.round((bfnScore  / 4) * 100), ...BIGFIVE_LABELS.N[lvl(bfnScore,  4)] },
     ...(oScore > 0 || answers.some(a => a.bigFiveType === 'O')
       ? { O: { score: oScore, pct: Math.round((oScore / 4) * 100), ...BIGFIVE_LABELS.O[lvl(oScore, 4)] } }
       : {}),
@@ -238,7 +261,7 @@ export function calculateResults(answers) {
   return {
     mbtiType,
     mbtiInfo: MBTI_TYPES[mbtiType],
-    dimensions: dims,
+    dimensions,
     maleBrainPct,
     femaleBrainPct: 100 - maleBrainPct,
     bigFive,
@@ -289,6 +312,8 @@ function generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle
     tips.push('やり方を任せること。過剰な管理やプロセス介入はモチベーションを下げます')
   } else if (workValues.primary === 'contribution' || workValues.primary === 'impact' || workValues.primary === 'mission') {
     tips.push('「あなたのおかげで〇〇が助かった」という言葉が最大の報酬になります')
+  } else if (workValues.primary === 'exploration') {
+    tips.push('知的好奇心が最大の原動力。「なぜ」を考える余地と新しい問いへのアクセスを与えることで力を発揮します')
   }
 
   // Conflict style
