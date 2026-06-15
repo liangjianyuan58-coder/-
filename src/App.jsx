@@ -4,7 +4,7 @@ import QuestionScreen from './components/QuestionScreen'
 import ResultScreen from './components/ResultScreen'
 import { questions as simpleQuestions } from './data/questions'
 import { detailedQuestions } from './data/questionsDetailed'
-import { calculateResults } from './utils/scoring'
+import { calculateEnhancedResults } from './utils/enhancedResults'
 import { hasManagerAccess } from './utils/managerAuth'
 
 // ID-based encoding — order-independent, version-safe
@@ -65,7 +65,8 @@ export default function App() {
     if (!hash) return
     try {
       const { mode: m, answers: reconstructed } = decodeHash(hash)
-      const computed = calculateResults(reconstructed)
+      // ✨ NEW: calculateEnhancedResults を使用（従来の calculateResults ではなく）
+      const computed = calculateEnhancedResults(reconstructed)
       setMode(m)
       setShareUrl(buildShareUrl(reconstructed, m))
       setResults(computed)
@@ -95,7 +96,8 @@ export default function App() {
     if (currentIndex + 1 < questionSet.length) {
       setTimeout(() => setCurrentIndex(currentIndex + 1), 300)
     } else {
-      const computed = calculateResults(newAnswers)
+      // ✨ NEW: calculateEnhancedResults を使用
+      const computed = calculateEnhancedResults(newAnswers)
       const url = buildShareUrl(newAnswers, mode)
       setResults(computed)
       setShareUrl(url)
