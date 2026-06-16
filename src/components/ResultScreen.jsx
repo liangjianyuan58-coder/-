@@ -21,7 +21,7 @@ export default function ResultScreen({ results, shareUrl, isShared, mode, manage
   const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct,
           bigFive, workValues, conflictStyle, management,
           decisionStyle, leadershipStyle, recognitionStyle, stressTriggers,
-          tips } = results
+          tips, mbtiSuitableJobs, weaknessInfo } = results
   const [animated, setAnimated] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
   const [promptVisible, setPromptVisible] = useState(false)
@@ -209,6 +209,34 @@ export default function ResultScreen({ results, shareUrl, isShared, mode, manage
               <span className="values-secondary-label">{workValues.secondaryInfo.label}</span>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* 追加セクション①：弱点と今後の対策（Next Action） */}
+      <section className="result-section">
+        <h2 className="section-title">⚠️ 弱点と今後の対策（Next Action）</h2>
+        <div className="detail-card" style={{ borderLeft: '4px solid #ef4444' }}>
+          <div className="stress-row">
+            <div className="stress-tag stress-tag-sign">陥りやすい弱点</div>
+            <div className="stress-desc">{weaknessInfo?.weakness}</div>
+          </div>
+          <div className="stress-row" style={{ borderTop: '1px solid #f5f3ff', marginTop: '12px', paddingTop: '12px' }}>
+            <div className="stress-tag stress-tag-trigger" style={{ background: '#dcfce7', color: '#166534' }}>今すぐできる対策</div>
+            <div className="stress-desc" style={{ fontWeight: 'bold', color: '#166534' }}>{weaknessInfo?.action}</div>
+          </div>
+        </div>
+      </section>
+
+      {/* 追加セクション②：向いている職業（適職） */}
+      <section className="result-section">
+        <h2 className="section-title">💼 あなたに向いている職業（適職傾向）</h2>
+        <div className="tips-card">
+          {mbtiSuitableJobs?.map((job, i) => (
+            <div key={i} className="tip-item">
+              <span className="tip-bullet" style={{ color: mbtiInfo.color }}>✦</span>
+              <span style={{ fontWeight: 600, fontSize: '14px' }}>{job}</span>
+            </div>
+          ))}
         </div>
       </section>
 

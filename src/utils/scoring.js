@@ -1,20 +1,39 @@
 export const MBTI_TYPES = {
-  INTJ: { name: '建築家', tagline: '戦略的・独立した思考家', color: '#6366f1' },
-  INTP: { name: '論理学者', tagline: '革新的なアイデアの探求者', color: '#8b5cf6' },
-  ENTJ: { name: '指揮官', tagline: '大胆で意志の強いリーダー', color: '#7c3aed' },
-  ENTP: { name: '討論者', tagline: '知的な挑戦者・革新者', color: '#6d28d9' },
-  INFJ: { name: '提唱者', tagline: '洞察力豊かなビジョナリー', color: '#0ea5e9' },
-  INFP: { name: '仲介者', tagline: '詩的な理想主義者', color: '#22c55e' },
-  ENFJ: { name: '主人公', tagline: 'カリスマ的インスパイアリーダー', color: '#f59e0b' },
-  ENFP: { name: '活動家', tagline: '情熱的で自由な探求者', color: '#ef4444' },
-  ISTJ: { name: '管理者', tagline: '信頼できる誠実な実行者', color: '#475569' },
-  ISFJ: { name: '擁護者', tagline: '心温かき誠実な守護者', color: '#10b981' },
-  ESTJ: { name: '幹部', tagline: '優れた管理者・統括者', color: '#3b82f6' },
-  ESFJ: { name: '執政官', tagline: '社交的で細やかな気配り屋', color: '#ec4899' },
-  ISTP: { name: '巨匠', tagline: '大胆な問題解決の職人', color: '#64748b' },
-  ISFP: { name: '冒険家', tagline: '魅力的な感覚重視のアーティスト', color: '#84cc16' },
-  ESTP: { name: '起業家', tagline: '精力的・即断即決の実践家', color: '#f97316' },
-  ESFP: { name: 'エンターテイナー', tagline: '自発的でエネルギッシュな表現者', color: '#a855f7' },
+  INTJ: { name: '建築家', tagline: '戦略的・独立した思考家', color: '#6366f1', suitableJobs: ['システムアーキテクト', '経営戦略コンサルタント', 'データサイエンティスト'] },
+  INTP: { name: '論理学者', tagline: '革新的なアイデアの探求者', color: '#8b5cf6', suitableJobs: ['研究職・開発者', 'バックエンドエンジニア', 'テクニカルアナリスト'] },
+  ENTJ: { name: '指揮官', tagline: '大胆で意志の強いリーダー', color: '#7c3aed', suitableJobs: ['プロジェクトマネージャー', '経営者・起業家', '組織コンサルタント'] },
+  ENTP: { name: '討論者', tagline: '知的な挑戦者・革新者', color: '#6d28d9', suitableJobs: ['新規事業開発', 'ベンチャーキャピタリスト', '商品企画・プロデューサー'] },
+  INFJ: { name: '提唱者', tagline: '洞察力豊かなビジョナリー', color: '#0ea5e9', suitableJobs: ['カウンセラー・臨床心理士', '人事・組織開発', '文芸・クリエイティブ職'] },
+  INFP: { name: '仲介者', tagline: '詩的な理想主義者', color: '#22c55e', suitableJobs: ['ライター・編集者', 'デザイナー・イラストレーター', '非営利組織(NPO)スタッフ'] },
+  ENFJ: { name: '主人公', tagline: 'カリスマ的インスパイアリーダー', color: '#f59e0b', suitableJobs: ['広報(PR)マネージャー', 'チームリーダー', 'キャリアアドバイザー'] },
+  ENFP: { name: '活動家', tagline: '情熱的で自由な探求者', color: '#ef4444', suitableJobs: ['マーケティングプランナー', 'イベントプロデューサー', 'クリエイティブディレクター'] },
+  ISTJ: { name: '管理者', tagline: '信頼できる誠実な実行者', color: '#475569', suitableJobs: ['財務・経理スペック', '品質管理・監査', 'システム運用管理'] },
+  ISFJ: { name: '擁護者', tagline: '心温かき誠実な守護者', color: '#10b981', suitableJobs: ['医療・看護職', 'カスタマーサクセス', '総務・一般事務'] },
+  ESTJ: { name: '幹部', tagline: '優れた管理者・統括者', color: '#3b82f6', suitableJobs: ['オペレーションマネージャー', '営業部長', '公務員・管理職'] },
+  ESFJ: { name: '執政官', tagline: '社交的で細やかな気配り屋', color: '#ec4899', suitableJobs: ['人事・採用担当', 'ウェディングプランナー', '店舗マネージャー'] },
+  ISTP: { name: '巨匠', tagline: '大胆な問題解決の職人', color: '#64748b', suitableJobs: ['データアナリスト', '機械・ネットワークエンジニア', 'セキュリティスペシャリスト'] },
+  ISFP: { name: '冒険家', tagline: '魅力的な感覚重視のアーティスト', color: '#84cc16', suitableJobs: ['UI/UXデザイナー', 'シェフ・パティシエ', '音響・映像エディター'] },
+  ESTP: { name: '起業家', tagline: '精力的・即断即決の実践家', color: '#f97316', suitableJobs: ['フィールドセールス', '不動産エージェント', 'ブートキャンプ講師'] },
+  ESFP: { name: 'エンターテイナー', tagline: '自発的でエネルギッシュな表現者', color: '#a855f7', suitableJobs: ['エンターテインメント職', 'イベントMC・営業', '旅行プランナー'] },
+}
+
+const WEAKNESS_DATABASE = {
+  INTJ: { weakness: "完璧主義になりがちで、他者に対して過剰に合理性を求めてしまうことがあります。", action: "チームで動く際は、意見のロジックだけでなく、相手の感情的な背景を1つ質問してみましょう。" },
+  INTP: { weakness: "分析やアイデア構築に没頭するあまり、実行や期限管理が後回しになりやすいです。", action: "『60%の完成度で一度共有する』タイムボックス（時間制限）を自分に課してみましょう。" },
+  ENTJ: { weakness: "目標達成を急ぐあまり、他者の感情や意見を無視して強引に進めてしまうことがあります。", action: "決断を下す前に、一度周囲の意見を聞く「クッションの時間」を意図的に設けましょう。" },
+  ENTP: { weakness: "次々と新しいアイデアに飛びつき、一つのことを最後までやり抜くのが苦手な傾向があります。", action: "新しいことを始める前に、進行中のプロジェクトを1つ完了させるルールを作りましょう。" },
+  INFJ: { weakness: "理想が高く、現実とのギャップに疲れ果ててしまう（バーンアウトする）ことがあります。", action: "自分と他者に完璧を求めず、「今日はここまでできれば十分」という妥協点を見つけましょう。" },
+  INFP: { weakness: "批判に対して非常に敏感で、個人的な攻撃として受け取り深く傷ついてしまうことがあります。", action: "フィードバックは「自分への否定」ではなく「作品や仕事への提案」として切り離して受け取る練習をしましょう。" },
+  ENFJ: { weakness: "他者の問題を自分のことのように抱え込みすぎ、自己犠牲を払って疲弊しやすいです。", action: "「自分が助けられる範囲」の境界線を引き、時には『No』と言う勇気を持ちましょう。" },
+  ENFP: { weakness: "日常のルーティンワークや細かい管理業務にすぐ退屈し、集中力を失いがちです。", action: "退屈な作業はゲーム感覚で楽しめるように工夫するか、得意な人に一部を任せましょう。" },
+  ISTJ: { weakness: "前例やルールに固執しすぎて、予期せぬ変化や新しいアプローチに対して柔軟に対応できないことがあります。", action: "「今回は少しだけ違う方法を試してみる」という小さな実験を許容してみましょう。" },
+  ISFJ: { weakness: "他者のニーズを優先しすぎて、自分の意見や要望を主張できず、不満を溜め込んでしまうことがあります。", action: "1日に1回は、「自分が本当にしたいこと」を優先して選び、周囲に伝える練習をしましょう。" },
+  ESTJ: { weakness: "効率を重視するあまり、他者に対して厳しすぎたり、指示が冷たく感じられたりすることがあります。", action: "指示を出す際は、結論の前に「いつもありがとう」など、感謝や労いの言葉を添えましょう。" },
+  ESFJ: { weakness: "他者からの評価や承認に依存しやすく、批判されると極度に落ち込んでしまう傾向があります。", action: "他者の評価ではなく、「自分がどれだけ頑張ったか」という自己評価の基準を持ちましょう。" },
+  ISTP: { weakness: "長期的な計画を立てるのが苦手で、リスクを過小評価して衝動的に行動してしまうことがあります。", action: "行動を起こす前に、「最悪のケース」と「必要な準備」を5分だけ考える癖をつけましょう。" },
+  ISFP: { weakness: "対立や衝突を極端に恐れ、問題に向き合わずに逃げてしまうことがあります。", action: "意見が食い違った時は、「私はこう思う」というアイメッセージで、小さな不満から伝える練習をしましょう。" },
+  ESTP: { weakness: "刺激を求めてリスクを取りすぎたり、退屈な環境だとすぐにやる気を失ったりすることがあります。", action: "長期的な目標を細かいステップに分け、各ステップごとに自分への小さなご褒美を設定しましょう。" },
+  ESFP: { weakness: "目先の楽しさに気を取られ、計画性や将来の備えを後回しにしてしまうことが多いです。", action: "週に一度、スケジュールや予算を振り返る「現実チェック」の時間を意図的に作りましょう。" }
 }
 
 const MANAGEMENT_LABELS = {
@@ -258,6 +277,11 @@ export function calculateResults(answers) {
 
   const tips = generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle, decisionStyle, leadershipStyle, recognitionStyle, stressTriggers)
 
+  const weaknessInfo = WEAKNESS_DATABASE[mbtiType] || { 
+    weakness: "細部にこだわりすぎて全体のスピードが落ちることがあります。", 
+    action: "まずは全体のタスクを書き出し、優先順位の高い3つだけに集中しましょう。" 
+  };
+
   return {
     mbtiType,
     mbtiInfo: MBTI_TYPES[mbtiType],
@@ -273,6 +297,8 @@ export function calculateResults(answers) {
     recognitionStyle,
     stressTriggers,
     tips,
+    mbtiSuitableJobs: MBTI_TYPES[mbtiType]?.suitableJobs || [],
+    weaknessInfo,
   }
 }
 
