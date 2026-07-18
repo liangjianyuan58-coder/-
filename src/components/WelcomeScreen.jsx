@@ -51,6 +51,12 @@ export default function WelcomeScreen({ onStart }) {
             <div className="mode-time">約12〜15分 · 46問</div>
             <div className="mode-desc">基本8軸＋意思決定・リーダーシップ等14軸</div>
           </button>
+          <button className="btn-mode btn-mode-premium" onClick={() => onStart('premium')}>
+            <div className="mode-icon">🏆</div>
+            <div className="mode-title">プレミアム診断</div>
+            <div className="mode-time">約20分 · 54問</div>
+            <div className="mode-desc">全14軸を5段階の精密回答で測定＋回答一貫性チェック＋自由記述。最も高精度な分析</div>
+          </button>
         </div>
 
         <div className="welcome-meta">診断後にURLで結果を共有できます</div>

@@ -140,6 +140,56 @@ const STRESS_SIGN_LABELS = {
   avoidance:     { label: '回避・先延ばし', desc: 'タスクを後回しにして逃げる傾向が出る' },
 }
 
+// ── Consistency check (premium mode lie scale) ───────────────────────
+const CONSISTENCY_LEVELS = [
+  { min: 80, level: 'high', label: '高', desc: '回答に高い一貫性があります。結果の信頼性は高いと考えられます。' },
+  { min: 60, level: 'mid',  label: '中', desc: '回答にややブレがあります。結果は参考程度に、1on1などの対話で裏取りすることをおすすめします。' },
+  { min: 0,  level: 'low',  label: '低', desc: '回答の一貫性が低めです。急いで回答したか、自己認識が揺れている可能性があります。結果は慎重に扱ってください。' },
+]
+
+const CONSISTENCY_PAIRS = [
+  { a: 1,  b: 47, type: 'bipolar', toward: 'I'  },
+  { a: 3,  b: 48, type: 'bipolar', toward: 'Ne' },
+  { a: 8,  b: 49, type: 'bipolar', toward: 'Fi' },
+  { a: 13, b: 50, type: 'scale' },
+  { a: 14, b: 51, type: 'scale' },
+  { a: 9,  b: 52, type: 'scale' },
+]
+
+function calcConsistency(answers) {
+  const byId = {}
+  answers.forEach(a => { byId[a.questionId] = a })
+
+  // Normalize a bipolar answer ('Ni:2' etc.) to 0-1 toward the given pole
+  const towardNorm = (ans, pole) => {
+    if (typeof ans.value !== 'string' || !ans.value.includes(':')) return null
+    const [p, w] = ans.value.split(':')
+    if (p === 'mid') return 0.5
+    return p === pole ? 0.5 + 0.25 * Number(w) : 0.5 - 0.25 * Number(w)
+  }
+  // Normalize a scale answer to 0-1 toward the construct (reverse items inverted)
+  const scaleNorm = (ans) => {
+    if (typeof ans.value !== 'number') return null
+    const m = ans.max ?? 2
+    const v = ans.reverse ? m - ans.value : ans.value
+    return v / m
+  }
+
+  const diffs = []
+  for (const p of CONSISTENCY_PAIRS) {
+    const A = byId[p.a], B = byId[p.b]
+    if (!A || !B) continue
+    const nA = p.type === 'bipolar' ? towardNorm(A, p.toward) : scaleNorm(A)
+    const nB = p.type === 'bipolar' ? towardNorm(B, p.toward) : scaleNorm(B)
+    if (nA == null || nB == null) continue
+    diffs.push(Math.abs(nA - nB))
+  }
+  if (diffs.length === 0) return null
+  const pct = Math.round((1 - diffs.reduce((s, d) => s + d, 0) / diffs.length) * 100)
+  const info = CONSISTENCY_LEVELS.find(l => pct >= l.min)
+  return { pct, ...info }
+}
+
 // Work values: pick the most "management-meaningful" type from 3 answers
 function inferWorkValues(answers) {
   const q17 = answers.find(a => a.id === 17)?.value
@@ -158,10 +208,17 @@ function inferWorkValues(answers) {
 }
 
 export function calculateResults(answers) {
-  // MBTI — cognitive function scoring
+  // MBTI — cognitive function scoring (premium answers carry 'pole:weight')
   const raw = { E: 0, I: 0, Ni: 0, Ne: 0, Si: 0, Se: 0, T: 0, F: 0, Fi: 0, Fe: 0 }
   answers.filter(a => a.category === 'mbti').forEach(a => {
-    if (a.value in raw) raw[a.value]++
+    const v = a.value
+    if (typeof v !== 'string') return
+    if (v.includes(':')) {
+      const [pole, w] = v.split(':')
+      if (pole in raw) raw[pole] += Number(w)
+    } else if (v in raw) {
+      raw[v]++
+    }
   })
 
   // Legacy fallback: old hash URLs stored 'N'/'S'/'J'/'P' directly
@@ -190,33 +247,38 @@ export function calculateResults(answers) {
     J: jScore, P: pScore,
   }
 
-  // Brain type
+  // Brain type (reverse/max-aware for premium 5-point items)
   let systemizing = 0, empathizing = 0
   answers.filter(a => a.category === 'brain').forEach(a => {
-    if (a.brainType === 'systemizing') systemizing += a.value
-    else empathizing += a.value
+    if (typeof a.value !== 'number') return
+    const itemMax = a.max ?? 2
+    const v = a.reverse ? itemMax - a.value : a.value
+    if (a.brainType === 'systemizing') systemizing += v
+    else empathizing += v
   })
   const totalBrain = systemizing + empathizing
   const maleBrainPct = totalBrain === 0 ? 50 : Math.round((systemizing / totalBrain) * 100)
 
-  // Big Five (all axes — O and A only present in detailed mode)
-  let cScore = 0, bfnScore = 0, oScore = 0, aScore = 0
+  // Big Five — dynamic max so 3-point, 5-point and reverse items all mix
+  const bf = { C: { s: 0, m: 0 }, N: { s: 0, m: 0 }, O: { s: 0, m: 0 }, A: { s: 0, m: 0 } }
   answers.filter(a => a.category === 'bigfive').forEach(a => {
-    if (a.bigFiveType === 'C') cScore += a.value
-    else if (a.bigFiveType === 'N') bfnScore += a.value
-    else if (a.bigFiveType === 'O') oScore += a.value
-    else if (a.bigFiveType === 'A') aScore += a.value
+    const t = a.bigFiveType
+    if (!bf[t] || typeof a.value !== 'number') return
+    const itemMax = a.max ?? 2
+    bf[t].s += a.reverse ? itemMax - a.value : a.value
+    bf[t].m += itemMax
   })
-  const lvl = (s, max) => s >= max ? 2 : s >= max / 2 ? 1 : 0
+  const lvl = (s, m) => s >= m * 0.75 ? 2 : s >= m * 0.4 ? 1 : 0
+  const bfAxis = (t) => ({
+    score: bf[t].s,
+    pct: bf[t].m ? Math.round((bf[t].s / bf[t].m) * 100) : 0,
+    ...BIGFIVE_LABELS[t][lvl(bf[t].s, bf[t].m || 1)],
+  })
   const bigFive = {
-    C: { score: cScore,    pct: Math.round((cScore    / 4) * 100), ...BIGFIVE_LABELS.C[lvl(cScore,    4)] },
-    N: { score: bfnScore,  pct: Math.round((bfnScore  / 4) * 100), ...BIGFIVE_LABELS.N[lvl(bfnScore,  4)] },
-    ...(oScore > 0 || answers.some(a => a.bigFiveType === 'O')
-      ? { O: { score: oScore, pct: Math.round((oScore / 4) * 100), ...BIGFIVE_LABELS.O[lvl(oScore, 4)] } }
-      : {}),
-    ...(aScore > 0 || answers.some(a => a.bigFiveType === 'A')
-      ? { A: { score: aScore, pct: Math.round((aScore / 4) * 100), ...BIGFIVE_LABELS.A[lvl(aScore, 4)] } }
-      : {}),
+    C: bfAxis('C'),
+    N: bfAxis('N'),
+    ...(bf.O.m > 0 ? { O: bfAxis('O') } : {}),
+    ...(bf.A.m > 0 ? { A: bfAxis('A') } : {}),
   }
 
   // Work values
@@ -275,6 +337,13 @@ export function calculateResults(answers) {
     sign:    signAnswer    ? { type: signAnswer.value,    ...STRESS_SIGN_LABELS[signAnswer.value] }    : null,
   } : null
 
+  // Consistency check + free texts (premium only — null otherwise)
+  const consistency = calcConsistency(answers)
+  const rawFreeTexts = answers
+    .filter(a => a.category === 'freetext' && typeof a.value === 'string' && a.value.trim())
+    .map(a => ({ question: a.qText || '', text: a.value.trim() }))
+  const freeTexts = rawFreeTexts.length ? rawFreeTexts : null
+
   const tips = generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle, decisionStyle, leadershipStyle, recognitionStyle, stressTriggers)
 
   const weaknessInfo = WEAKNESS_DATABASE[mbtiType] || { 
@@ -296,6 +365,8 @@ export function calculateResults(answers) {
     leadershipStyle,
     recognitionStyle,
     stressTriggers,
+    consistency,
+    freeTexts,
     tips,
     mbtiSuitableJobs: MBTI_TYPES[mbtiType]?.suitableJobs || [],
     weaknessInfo,
@@ -397,7 +468,8 @@ function generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle
 export function generateAIPrompt(results) {
   const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct,
           bigFive, workValues, conflictStyle, management,
-          decisionStyle, leadershipStyle, recognitionStyle, stressTriggers } = results
+          decisionStyle, leadershipStyle, recognitionStyle, stressTriggers,
+          consistency, freeTexts } = results
 
   const pct = (a, b) => {
     const t = (dimensions[a] || 0) + (dimensions[b] || 0)
@@ -438,7 +510,7 @@ export function generateAIPrompt(results) {
 　${conflictStyle ? `${conflictStyle.label}（${conflictStyle.desc}）` : '不明'}
 
 ■ 仕事スタイル
-${mgmtDetail}${decisionStyle ? `\n\n■ 意思決定スタイル\n　${decisionStyle.label}（${decisionStyle.desc}）${decisionStyle.secondary ? `\n　サブ：${decisionStyle.secondary.label}` : ''}` : ''}${leadershipStyle ? `\n\n■ リーダーシップ傾向\n　${leadershipStyle.label}（${leadershipStyle.desc}）` : ''}${recognitionStyle ? `\n\n■ 承認スタイル\n　${recognitionStyle.label}（${recognitionStyle.desc}）` : ''}${stressTriggers ? `\n\n■ ストレス傾向\n　ストレス源：${stressTriggers.trigger?.label || '不明'}（${stressTriggers.trigger?.desc || ''}）\n　サイン：${stressTriggers.sign?.label || '不明'}（${stressTriggers.sign?.desc || ''}）` : ''}
+${mgmtDetail}${decisionStyle ? `\n\n■ 意思決定スタイル\n　${decisionStyle.label}（${decisionStyle.desc}）${decisionStyle.secondary ? `\n　サブ：${decisionStyle.secondary.label}` : ''}` : ''}${leadershipStyle ? `\n\n■ リーダーシップ傾向\n　${leadershipStyle.label}（${leadershipStyle.desc}）` : ''}${recognitionStyle ? `\n\n■ 承認スタイル\n　${recognitionStyle.label}（${recognitionStyle.desc}）` : ''}${stressTriggers ? `\n\n■ ストレス傾向\n　ストレス源：${stressTriggers.trigger?.label || '不明'}（${stressTriggers.trigger?.desc || ''}）\n　サイン：${stressTriggers.sign?.label || '不明'}（${stressTriggers.sign?.desc || ''}）` : ''}${consistency ? `\n\n■ 回答一貫性チェック（同一特性を別文面で再測定した際のブレ）\n　一貫性 ${consistency.pct}%（${consistency.label}）— ${consistency.desc}` : ''}${freeTexts ? `\n\n■ 本人の自由記述（原文のまま。文体・語彙・具体性からも人物像を読み取ってください）\n${freeTexts.map(f => `　【${f.question}】\n　「${f.text}」`).join('\n')}` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━
 
 以下の観点で分析・アドバイスをください：

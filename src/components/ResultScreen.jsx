@@ -21,6 +21,7 @@ export default function ResultScreen({ results, shareUrl, isShared, mode, manage
   const { mbtiType, mbtiInfo, dimensions, maleBrainPct, femaleBrainPct,
           bigFive, workValues, conflictStyle, management,
           decisionStyle, leadershipStyle, recognitionStyle, stressTriggers,
+          consistency, freeTexts,
           tips, mbtiSuitableJobs, weaknessInfo } = results
   const [animated, setAnimated] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
@@ -349,6 +350,38 @@ export default function ResultScreen({ results, shareUrl, isShared, mode, manage
       {/* Manager-only */}
       {isManagerView && (
         <>
+          {consistency && (
+            <section className="result-section">
+              <h2 className="section-title">🎚 回答一貫性（プレミアム）</h2>
+              <div className="consistency-card">
+                <div className="consistency-top">
+                  <span className={`bigfive-badge level-${consistency.level === 'high' ? 'high' : consistency.level === 'mid' ? 'mid' : 'low'}`}>
+                    一貫性 {consistency.label}
+                  </span>
+                  <span className="consistency-pct">{consistency.pct}%</span>
+                </div>
+                <div className="bigfive-bar">
+                  <div className="bigfive-fill bf-consistency" style={{ width: animated ? `${consistency.pct}%` : '0%' }} />
+                </div>
+                <p className="consistency-desc">{consistency.desc}</p>
+              </div>
+            </section>
+          )}
+
+          {freeTexts && (
+            <section className="result-section">
+              <h2 className="section-title">✍️ 本人の自由記述</h2>
+              <div className="freetext-card">
+                {freeTexts.map((f, i) => (
+                  <div key={i} className="freetext-item">
+                    <div className="freetext-q">{f.question}</div>
+                    <div className="freetext-a">「{f.text}」</div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section className="result-section">
             <h2 className="section-title">💡 マネジメントのポイント</h2>
             <div className="tips-card">
