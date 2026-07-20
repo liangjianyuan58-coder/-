@@ -141,20 +141,26 @@ const STRESS_SIGN_LABELS = {
 }
 
 // ── Consistency check (premium mode lie scale) ───────────────────────
+// 補足: ランダムな回答ブレは50%前後に収束する。一桁〜20%未満は
+// 「逆転設問で系統的に反対」を意味し、急いだ回答とは別の現象。
 const CONSISTENCY_LEVELS = [
   { min: 80, level: 'high', label: '高', desc: '回答に高い一貫性があります。結果の信頼性は高いと考えられます。' },
   { min: 60, level: 'mid',  label: '中', desc: '回答にややブレがあります。結果は参考程度に、1on1などの対話で裏取りすることをおすすめします。' },
-  { min: 0,  level: 'low',  label: '低', desc: '回答の一貫性が低めです。急いで回答したか、自己認識が揺れている可能性があります。結果は慎重に扱ってください。' },
+  { min: 20, level: 'low',  label: '低', desc: '回答の一貫性が低めです。急いで回答したか、自己認識が揺れている可能性があります。結果は慎重に扱ってください。' },
+  { min: 0,  level: 'inverted', label: '要注意（系統的反転）', desc: '最終チェックの逆転設問で、系統的に反対方向の回答が検出されました。設問文を読まずに回答位置のパターンで答えた可能性が高く、結果全体の信頼性は保証できません。再受検を推奨します。' },
 ]
 
 const CONSISTENCY_PAIRS = [
-  { a: 1,  b: 47, type: 'bipolar', toward: 'I'  },
-  { a: 3,  b: 48, type: 'bipolar', toward: 'Ne' },
-  { a: 8,  b: 49, type: 'bipolar', toward: 'Fi' },
-  { a: 13, b: 50, type: 'scale' },
-  { a: 14, b: 51, type: 'scale' },
-  { a: 9,  b: 52, type: 'scale' },
+  { a: 1,  b: 47, type: 'bipolar', toward: 'I',  construct: '外向/内向（E/I）' },
+  { a: 3,  b: 48, type: 'bipolar', toward: 'Ne', construct: '直観の方向（Ni/Ne）' },
+  { a: 8,  b: 49, type: 'bipolar', toward: 'Fi', construct: '感情判断の方向（Fi/Fe）' },
+  { a: 13, b: 50, type: 'scale',   construct: '誠実性（計画性）' },
+  { a: 14, b: 51, type: 'scale',   construct: '情緒安定性' },
+  { a: 9,  b: 52, type: 'scale',   construct: 'システム化傾向（脳タイプ）' },
 ]
+
+// 一貫性チェック項目（本編スコアには合算しない）
+const CONSISTENCY_ITEM_IDS = new Set(CONSISTENCY_PAIRS.map(p => p.b))
 
 function calcConsistency(answers) {
   const byId = {}
@@ -175,19 +181,31 @@ function calcConsistency(answers) {
     return v / m
   }
 
-  const diffs = []
+  const pairs = []
   for (const p of CONSISTENCY_PAIRS) {
     const A = byId[p.a], B = byId[p.b]
     if (!A || !B) continue
     const nA = p.type === 'bipolar' ? towardNorm(A, p.toward) : scaleNorm(A)
     const nB = p.type === 'bipolar' ? towardNorm(B, p.toward) : scaleNorm(B)
     if (nA == null || nB == null) continue
-    diffs.push(Math.abs(nA - nB))
+    const diff = Math.abs(nA - nB)
+    pairs.push({
+      construct: p.construct,
+      diff: Math.round(diff * 100) / 100,
+      // 0.25以内=一致 / 0.75以上=強い矛盾（ほぼ反転）
+      status: diff <= 0.25 ? 'ok' : diff >= 0.75 ? 'contradicted' : 'unstable',
+    })
   }
-  if (diffs.length === 0) return null
-  const pct = Math.round((1 - diffs.reduce((s, d) => s + d, 0) / diffs.length) * 100)
-  const info = CONSISTENCY_LEVELS.find(l => pct >= l.min)
-  return { pct, ...info }
+  if (pairs.length === 0) return null
+  const pct = Math.round((1 - pairs.reduce((s, p) => s + p.diff, 0) / pairs.length) * 100)
+  const contradicted = pairs.filter(p => p.status === 'contradicted')
+  // 過半数のペアがほぼ反転 → 系統的反転（読み飛ばし・位置固定回答の疑い）
+  const systematic = contradicted.length >= Math.ceil(pairs.length / 2)
+  const info = systematic
+    ? CONSISTENCY_LEVELS.find(l => l.level === 'inverted')
+    : (CONSISTENCY_LEVELS.find(l => pct >= l.min && l.level !== 'inverted')
+        || CONSISTENCY_LEVELS.find(l => l.level === 'low'))
+  return { pct, ...info, pairs, contradicted, systematic }
 }
 
 // Work values: pick the most "management-meaningful" type from 3 answers
@@ -208,9 +226,13 @@ function inferWorkValues(answers) {
 }
 
 export function calculateResults(answers) {
+  // 最終チェック（一貫性検証）項目は本編スコアに合算しない。
+  // 合算すると、反転設問の読み違いが一貫性低下だけでなく本体判定まで歪めるため。
+  const coreAnswers = answers.filter(a => !CONSISTENCY_ITEM_IDS.has(a.questionId))
+
   // MBTI — cognitive function scoring (premium answers carry 'pole:weight')
   const raw = { E: 0, I: 0, Ni: 0, Ne: 0, Si: 0, Se: 0, T: 0, F: 0, Fi: 0, Fe: 0 }
-  answers.filter(a => a.category === 'mbti').forEach(a => {
+  coreAnswers.filter(a => a.category === 'mbti').forEach(a => {
     const v = a.value
     if (typeof v !== 'string') return
     if (v.includes(':')) {
@@ -249,7 +271,7 @@ export function calculateResults(answers) {
 
   // Brain type (reverse/max-aware for premium 5-point items)
   let systemizing = 0, empathizing = 0
-  answers.filter(a => a.category === 'brain').forEach(a => {
+  coreAnswers.filter(a => a.category === 'brain').forEach(a => {
     if (typeof a.value !== 'number') return
     const itemMax = a.max ?? 2
     const v = a.reverse ? itemMax - a.value : a.value
@@ -261,7 +283,7 @@ export function calculateResults(answers) {
 
   // Big Five — dynamic max so 3-point, 5-point and reverse items all mix
   const bf = { C: { s: 0, m: 0 }, N: { s: 0, m: 0 }, O: { s: 0, m: 0 }, A: { s: 0, m: 0 } }
-  answers.filter(a => a.category === 'bigfive').forEach(a => {
+  coreAnswers.filter(a => a.category === 'bigfive').forEach(a => {
     const t = a.bigFiveType
     if (!bf[t] || typeof a.value !== 'number') return
     const itemMax = a.max ?? 2
@@ -346,9 +368,9 @@ export function calculateResults(answers) {
 
   const tips = generateTips(e, n, t, j, management, bigFive, workValues, conflictStyle, decisionStyle, leadershipStyle, recognitionStyle, stressTriggers)
 
-  const weaknessInfo = WEAKNESS_DATABASE[mbtiType] || { 
-    weakness: "細部にこだわりすぎて全体のスピードが落ちることがあります。", 
-    action: "まずは全体のタスクを書き出し、優先順位の高い3つだけに集中しましょう。" 
+  const weaknessInfo = WEAKNESS_DATABASE[mbtiType] || {
+    weakness: "細部にこだわりすぎて全体のスピードが落ちることがあります。",
+    action: "まずは全体のタスクを書き出し、優先順位の高い3つだけに集中しましょう。"
   };
 
   return {
@@ -510,7 +532,7 @@ export function generateAIPrompt(results) {
 　${conflictStyle ? `${conflictStyle.label}（${conflictStyle.desc}）` : '不明'}
 
 ■ 仕事スタイル
-${mgmtDetail}${decisionStyle ? `\n\n■ 意思決定スタイル\n　${decisionStyle.label}（${decisionStyle.desc}）${decisionStyle.secondary ? `\n　サブ：${decisionStyle.secondary.label}` : ''}` : ''}${leadershipStyle ? `\n\n■ リーダーシップ傾向\n　${leadershipStyle.label}（${leadershipStyle.desc}）` : ''}${recognitionStyle ? `\n\n■ 承認スタイル\n　${recognitionStyle.label}（${recognitionStyle.desc}）` : ''}${stressTriggers ? `\n\n■ ストレス傾向\n　ストレス源：${stressTriggers.trigger?.label || '不明'}（${stressTriggers.trigger?.desc || ''}）\n　サイン：${stressTriggers.sign?.label || '不明'}（${stressTriggers.sign?.desc || ''}）` : ''}${consistency ? `\n\n■ 回答一貫性チェック（同一特性を別文面で再測定した際のブレ）\n　一貫性 ${consistency.pct}%（${consistency.label}）— ${consistency.desc}` : ''}${freeTexts ? `\n\n■ 本人の自由記述（原文のまま。文体・語彙・具体性からも人物像を読み取ってください）\n${freeTexts.map(f => `　【${f.question}】\n　「${f.text}」`).join('\n')}` : ''}
+${mgmtDetail}${decisionStyle ? `\n\n■ 意思決定スタイル\n　${decisionStyle.label}（${decisionStyle.desc}）${decisionStyle.secondary ? `\n　サブ：${decisionStyle.secondary.label}` : ''}` : ''}${leadershipStyle ? `\n\n■ リーダーシップ傾向\n　${leadershipStyle.label}（${leadershipStyle.desc}）` : ''}${recognitionStyle ? `\n\n■ 承認スタイル\n　${recognitionStyle.label}（${recognitionStyle.desc}）` : ''}${stressTriggers ? `\n\n■ ストレス傾向\n　ストレス源：${stressTriggers.trigger?.label || '不明'}（${stressTriggers.trigger?.desc || ''}）\n　サイン：${stressTriggers.sign?.label || '不明'}（${stressTriggers.sign?.desc || ''}）` : ''}${consistency ? `\n\n■ 回答一貫性チェック（同一特性を別文面で再測定した際のブレ）\n　一貫性 ${consistency.pct}%（${consistency.label}）— ${consistency.desc}${consistency.contradicted?.length ? `\n　矛盾が検出された特性：${consistency.contradicted.map(p => p.construct).join('、')}${consistency.systematic ? '\n　※系統的反転のため、上記特性のスコアだけでなく結果全体を参考値として扱ってください。' : '\n　※上記特性のスコアは特に慎重に扱ってください。'}` : ''}` : ''}${freeTexts ? `\n\n■ 本人の自由記述（原文のまま。文体・語彙・具体性からも人物像を読み取ってください）\n${freeTexts.map(f => `　【${f.question}】\n　「${f.text}」`).join('\n')}` : ''}
 ━━━━━━━━━━━━━━━━━━━━━━
 
 以下の観点で分析・アドバイスをください：
